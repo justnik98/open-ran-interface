@@ -14,7 +14,7 @@ class Controller {
 public:
     Controller() = default;
 
-    void run(const IReader &r, const IWriter &w, const RedisConnector &c);
+    static void run(const RedisConnector &c);
 };
 
 

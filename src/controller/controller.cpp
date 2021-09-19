@@ -3,3 +3,7 @@
 //
 
 #include "controller.hpp"
+
+void Controller::run( const RedisConnector &c) {
+    c.run();
+}
