@@ -1,0 +1,6 @@
+[requires]
+hiredis/1.0.0
+libevent/2.1.12
+
+[generators]
+cmake
