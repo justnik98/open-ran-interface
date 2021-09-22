@@ -13,16 +13,16 @@
 #include "hiredis/adapters/libevent.h"
 
 class RedisConnector {
+private:
+    std::string IP = "127.0.0.1";
+    uint32_t port = 6379;
+
 public:
     RedisConnector() = default;
 
     RedisConnector(std::string ip, uint32_t port);
 
     void run() const;
-
-private:
-    std::string IP = "127.0.0.1";
-    uint32_t port = 6379;
 };
 
 void subCallback(redisAsyncContext *c, void *r, void *priv);
