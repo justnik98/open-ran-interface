@@ -5,9 +5,10 @@
 #include <utility>
 #include "redisconnector.hpp"
 
-RedisConnector::RedisConnector(std::string ip, uint32_t port) : IP(std::move(ip)), port(port) {}
+RedisConnector::RedisConnector(std::string ip, uint32_t port, Concurrent_queue<std::string> &tasks)
+        : IP(std::move(ip)), port(port), tasks(tasks) {}
 
-void RedisConnector::run() const {
+void RedisConnector::run() {
     signal(SIGPIPE, SIG_IGN);
     struct event_base *base = event_base_new();
 
@@ -21,26 +22,23 @@ void RedisConnector::run() const {
     redisLibeventAttach(c, base);
     redisAsyncSetConnectCallback(c, connectCallback);
     redisAsyncSetDisconnectCallback(c, disconnectCallback);
-    redisAsyncCommand(c, subCallback, (char *) "sub", "SUBSCRIBE foo");
+    redisAsyncCommand(c, subCallback, &tasks, "SUBSCRIBE foo");
 
     event_base_dispatch(base);
 }
 
-
-void subCallback(redisAsyncContext *c, void *r, void *priv) {
+void RedisConnector::subCallback(redisAsyncContext *c, void *r, void *priv) {
     auto *reply = static_cast<redisReply *> (r);
     if (reply == nullptr) return;
+    auto t =  static_cast<Concurrent_queue<std::string> *> (priv);
     if (reply->type == REDIS_REPLY_ARRAY && reply->elements == 3) {
         if (strcmp(reply->element[0]->str, "subscribe") != 0) {
-            printf("Received[%s] channel %s: %s\n",
-                   (char *) priv,
-                   reply->element[1]->str,
-                   reply->element[2]->str);
+            t->push(reply->element[2]->str);
         }
     }
 }
 
-void connectCallback(const redisAsyncContext *c, int status) {
+void RedisConnector::connectCallback(const redisAsyncContext *c, int status) {
     if (status != REDIS_OK) {
         printf("Error: %s\n", c->errstr);
         return;
@@ -48,7 +46,7 @@ void connectCallback(const redisAsyncContext *c, int status) {
     printf("Connected...\n");
 }
 
-void disconnectCallback(const redisAsyncContext *c, int status) {
+void RedisConnector::disconnectCallback(const redisAsyncContext *c, int status) {
     if (status != REDIS_OK) {
         printf("Error: %s\n", c->errstr);
         return;

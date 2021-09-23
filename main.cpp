@@ -4,9 +4,7 @@
 #include "src/interfaces/ireader.hpp"
 
 int main() {
-
     Controller c;
-    RedisConnector r;
-    Controller::run(r);
+    c.run();
     return 0;
 }

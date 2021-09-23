@@ -8,9 +8,10 @@
 #include <string>
 #include <cstring>
 #include <csignal>
-#include "hiredis/hiredis.h"
 #include "hiredis/async.h"
+#include "hiredis/hiredis.h"
 #include "hiredis/adapters/libevent.h"
+#include "../queue/concurrentqueue.hpp"
 
 class RedisConnector {
 private:
@@ -18,17 +19,21 @@ private:
     uint32_t port = 6379;
 
 public:
-    RedisConnector() = default;
 
-    RedisConnector(std::string ip, uint32_t port);
+    RedisConnector(std::string ip, uint32_t port, Concurrent_queue<std::string> &tasks);
 
-    void run() const;
+    void run();
+
+private:
+
+    Concurrent_queue<std::string> &tasks;
+
+    static void subCallback(redisAsyncContext *c, void *r, void *priv);
+
+    static void connectCallback(const redisAsyncContext *c, int status);
+
+    static void disconnectCallback(const redisAsyncContext *c, int status);
 };
 
-void subCallback(redisAsyncContext *c, void *r, void *priv);
-
-void connectCallback(const redisAsyncContext *c, int status);
-
-void disconnectCallback(const redisAsyncContext *c, int status);
 
 #endif //ORAN_INTERFACE_REDISCONNECTOR_HPP
