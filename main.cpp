@@ -4,7 +4,7 @@
 #include "src/interfaces/ireader.hpp"
 
 int main() {
-    Controller c;
+    Controller c(4);
     c.run();
     return 0;
 }

@@ -16,10 +16,14 @@ class Controller {
 public:
     Controller() = default;
 
+    Controller(uint32_t threadCount);
+
     void run();
 
 private:
     Concurrent_queue<std::string> tasks;
+
+    uint32_t thread_count = 1;
 
     [[noreturn]] void worker();
 };

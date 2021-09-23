@@ -9,16 +9,22 @@
 
 using namespace std;
 
+Controller::Controller(uint32_t threadCount) : thread_count(threadCount) {}
+
 void Controller::run() {
-    RedisConnector r("127.0.0.1", 6379, tasks);
-    //r.run();
-    //r.setQueue(tasks);
-    std::thread t1([&r]() { r.run(); });
-    std::thread t2(&Controller::worker, this);
-    std::thread t3(&Controller::worker, this);
-    t1.detach();
-    t2.join();
-    t3.join();
+    RedisConnector r(tasks);
+    vector<thread> threads;
+    threads.emplace_back(thread([&r]() { r.run(); }));
+    for (auto i = 1; i < thread_count; ++i)
+        threads.emplace_back(thread(&Controller::worker, this));
+
+    threads[0].detach();
+    for (auto &&t: threads) {
+        if (t.joinable()) {
+            t.join();
+        }
+    }
+
 }
 
 [[noreturn]] void Controller::worker() {
@@ -28,3 +34,5 @@ void Controller::run() {
         cout << res << endl;
     }
 }
+
+
