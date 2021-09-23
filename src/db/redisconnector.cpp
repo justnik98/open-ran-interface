@@ -8,6 +8,8 @@
 RedisConnector::RedisConnector(std::string ip, uint32_t port, Concurrent_queue<std::string> &tasks)
         : IP(std::move(ip)), port(port), tasks(tasks) {}
 
+RedisConnector::RedisConnector(Concurrent_queue<std::string> &tasks) : tasks(tasks) {}
+
 void RedisConnector::run() {
     signal(SIGPIPE, SIG_IGN);
     struct event_base *base = event_base_new();
@@ -30,7 +32,7 @@ void RedisConnector::run() {
 void RedisConnector::subCallback(redisAsyncContext *c, void *r, void *priv) {
     auto *reply = static_cast<redisReply *> (r);
     if (reply == nullptr) return;
-    auto t =  static_cast<Concurrent_queue<std::string> *> (priv);
+    auto t = static_cast<Concurrent_queue<std::string> *> (priv);
     if (reply->type == REDIS_REPLY_ARRAY && reply->elements == 3) {
         if (strcmp(reply->element[0]->str, "subscribe") != 0) {
             t->push(reply->element[2]->str);
@@ -53,3 +55,5 @@ void RedisConnector::disconnectCallback(const redisAsyncContext *c, int status) 
     }
     printf("Disconnected...\n");
 }
+
+
