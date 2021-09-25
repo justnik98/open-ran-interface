@@ -20,13 +20,12 @@ private:
 
 public:
 
-    RedisConnector(std::string ip, uint32_t port, Concurrent_queue<std::string> &tasks);
-
-    explicit RedisConnector(Concurrent_queue<std::string> &tasks);
+    RedisConnector(std::string ip, uint32_t port, Concurrent_queue<std::string> &tasks, std::string topics);
 
     void run();
 
 private:
+    std::string topics;
 
     Concurrent_queue<std::string> &tasks;
 

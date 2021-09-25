@@ -5,10 +5,10 @@
 #include <utility>
 #include "redisconnector.hpp"
 
-RedisConnector::RedisConnector(std::string ip, uint32_t port, Concurrent_queue<std::string> &tasks)
-        : IP(std::move(ip)), port(port), tasks(tasks) {}
+using namespace std;
 
-RedisConnector::RedisConnector(Concurrent_queue<std::string> &tasks) : tasks(tasks) {}
+RedisConnector::RedisConnector(std::string ip, uint32_t port, Concurrent_queue<std::string> &tasks, string topics)
+        : IP(std::move(ip)), port(port), tasks(tasks), topics(std::move(topics)) {}
 
 void RedisConnector::run() {
     signal(SIGPIPE, SIG_IGN);
@@ -24,7 +24,8 @@ void RedisConnector::run() {
     redisLibeventAttach(c, base);
     redisAsyncSetConnectCallback(c, connectCallback);
     redisAsyncSetDisconnectCallback(c, disconnectCallback);
-    redisAsyncCommand(c, subCallback, &tasks, "SUBSCRIBE foo");
+    string format = "SUBSCRIBE " + topics;
+    redisAsyncCommand(c, subCallback, &tasks, format.c_str());
 
     event_base_dispatch(base);
 }
