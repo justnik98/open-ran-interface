@@ -42,7 +42,7 @@ void Controller::run() {
 }
 
 void Controller::readConfig() {
-    ifstream in("../../config.cf");
+    ifstream in("../config.cf");
     if (!in.is_open()) {
         throw 42;
     }
