@@ -1,0 +1,8 @@
+#redis client setup
+REDIS_IP=127.0.0.1
+REDIS_PORT=6379
+TOPICS = foo,foo2,foo3
+
+#thread setup
+
+MAX_NUMBER_OF_THREADS=4
