@@ -16,7 +16,7 @@ class Controller {
 public:
     Controller() = default;
 
-    Controller(uint32_t threadCount);
+    explicit Controller(uint32_t threadCount);
 
     void run();
 

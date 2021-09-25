@@ -22,7 +22,7 @@ public:
 
     RedisConnector(std::string ip, uint32_t port, Concurrent_queue<std::string> &tasks);
 
-    RedisConnector(Concurrent_queue<std::string> &tasks);
+    explicit RedisConnector(Concurrent_queue<std::string> &tasks);
 
     void run();
 
