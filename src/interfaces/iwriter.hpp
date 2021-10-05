@@ -9,7 +9,7 @@
 
 class IWriter {
 public:
-    virtual void write(const std::string & msg) = 0;
+    virtual void write(const std::string &msg) = 0;
 };
 
 

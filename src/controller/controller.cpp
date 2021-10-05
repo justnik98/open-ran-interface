@@ -8,6 +8,7 @@
 #include <string_view>
 #include <thread>
 #include "controller.hpp"
+#include "../interfaces/consolewriter.hpp"
 
 using namespace std;
 
@@ -30,14 +31,14 @@ void Controller::run() {
             t.join();
         }
     }
-
 }
 
 [[noreturn]] void Controller::worker() {
     string res;
+    ConsoleWriter w;
     while (true) {
         tasks.wait_and_pop(res);
-        cout << res << endl;
+        w.write(res);
     }
 }
 

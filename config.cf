@@ -5,4 +5,4 @@ TOPICS = foo,foo2,foo3
 
 #thread setup
 
-MAX_NUMBER_OF_THREADS=4
+MAX_NUMBER_OF_THREADS=4000
