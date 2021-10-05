@@ -16,9 +16,7 @@ void RedisConnector::run() {
 
     redisAsyncContext *c = redisAsyncConnect(IP.c_str(), port);
     if (c->err) {
-        /* Let *c leak for now... */
-        printf("Error: %s\n", c->errstr);
-        throw 42;
+        throw runtime_error(string("Error") + c->errstr);
     }
 
     redisLibeventAttach(c, base);

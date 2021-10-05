@@ -45,7 +45,7 @@ void Controller::run() {
 void Controller::readConfig() {
     ifstream in("../config.cf");
     if (!in.is_open()) {
-        throw 42;
+        throw invalid_argument("There is no file named config.cf!");
     }
     std::string line;
     while (!in.eof()) {
