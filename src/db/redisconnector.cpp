@@ -2,6 +2,8 @@
 // Created by justnik on 17.09.2021.
 //
 
+#include <iostream>
+#include <thread>
 #include <utility>
 #include "redisconnector.hpp"
 
@@ -11,21 +13,24 @@ RedisConnector::RedisConnector(std::string ip, uint32_t port, Concurrent_queue<s
         : IP(std::move(ip)), port(port), tasks(tasks), topics(std::move(topics)) {}
 
 void RedisConnector::run() {
-    signal(SIGPIPE, SIG_IGN);
-    struct event_base *base = event_base_new();
+    event_base *base = event_base_new();
+    redisAsyncContext *c = nullptr;
+    while (true) {
+        c = redisAsyncConnect(IP.c_str(), port);
+        if (c->err) {
+            string what = c->errstr;
+            free(c);
+            throw runtime_error(string("Error! ") + what);
+        }
 
-    redisAsyncContext *c = redisAsyncConnect(IP.c_str(), port);
-    if (c->err) {
-        throw runtime_error(string("Error") + c->errstr);
+        redisLibeventAttach(c, base);
+        redisAsyncSetConnectCallback(c, connectCallback);
+        redisAsyncSetDisconnectCallback(c, disconnectCallback);
+        string format = "SUBSCRIBE " + topics;
+        redisAsyncCommand(c, subCallback, &tasks, format.c_str());
+
+        event_base_dispatch(base);
     }
-
-    redisLibeventAttach(c, base);
-    redisAsyncSetConnectCallback(c, connectCallback);
-    redisAsyncSetDisconnectCallback(c, disconnectCallback);
-    string format = "SUBSCRIBE " + topics;
-    redisAsyncCommand(c, subCallback, &tasks, format.c_str());
-
-    event_base_dispatch(base);
 }
 
 void RedisConnector::subCallback(redisAsyncContext *c, void *r, void *priv) {
@@ -42,6 +47,8 @@ void RedisConnector::subCallback(redisAsyncContext *c, void *r, void *priv) {
 void RedisConnector::connectCallback(const redisAsyncContext *c, int status) {
     if (status != REDIS_OK) {
         printf("Error: %s\n", c->errstr);
+        printf("Connecting to redis...\n");
+        this_thread::sleep_for(1000ms);
         return;
     }
     printf("Connected...\n");
