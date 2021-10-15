@@ -21,11 +21,13 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 class WebWriter {
 private:
-    static void do_session(std::string host,
-                           std::string const &port,
-                           std::string const &text,
-                           net::io_context &ioc,
-                           net::yield_context yield);
+    void doSession(std::string host, const std::string &port, const std::string &text, net::io_context &ioc,
+                   const boost::asio::yield_context &yield);
+
+    static void fail(beast::error_code ec, char const *what);
+
+public:
+    write()
 };
 
 

@@ -4,12 +4,16 @@
 
 #include "webwriter.hpp"
 
-void WebWriter::do_session(
+void WebWriter::fail(beast::error_code ec, char const *what) {
+    std::cerr << what << ": " << ec.message() << "\n";
+}
+
+void WebWriter::doSession(
         std::string host,
         std::string const &port,
         std::string const &text,
         net::io_context &ioc,
-        net::yield_context yield) {
+        const net::yield_context &yield) {
     beast::error_code ec;
 
     // These objects perform our I/O
