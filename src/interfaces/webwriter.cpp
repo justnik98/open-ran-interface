@@ -83,3 +83,18 @@ void WebWriter::doSession(
     // The make_printable() function helps print a ConstBufferSequence
     std::cout << beast::make_printable(buffer.data()) << std::endl;
 }
+
+void WebWriter::write(const std::string &msg) {
+    // The io_context is required for all I/O
+    net::io_context ioc;
+    const std::string &text = msg;
+    // Launch the asynchronous operation
+    boost::asio::spawn(ioc, [capture0 = std::string(host), capture1 = std::string(port),
+            capture2 = std::string(text), &ioc](auto &&PH1) {
+        return doSession(capture0, capture1, capture2, ioc, std::forward<decltype(PH1)>(PH1));
+    });
+
+    // Run the I/O service. The call will return when
+    // the socket is closed.
+    ioc.run();
+}
