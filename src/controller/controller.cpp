@@ -8,7 +8,6 @@
 #include <string_view>
 #include <thread>
 #include "controller.hpp"
-#include "../interfaces/consolewriter.hpp"
 #include "../interfaces/webwriter.hpp"
 
 using namespace std;
