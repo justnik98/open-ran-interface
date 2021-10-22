@@ -9,6 +9,7 @@
 #include <thread>
 #include "controller.hpp"
 #include "../interfaces/consolewriter.hpp"
+#include "../interfaces/webwriter.hpp"
 
 using namespace std;
 
@@ -35,10 +36,12 @@ void Controller::run() {
 
 [[noreturn]] void Controller::worker() {
     string res;
-    ConsoleWriter w;
+    WebWriter w;
+    //ConsoleWriter c;
     while (true) {
         tasks.wait_and_pop(res);
         w.write(res);
+       // c.write(res);
     }
 }
 

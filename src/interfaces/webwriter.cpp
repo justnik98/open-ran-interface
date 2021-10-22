@@ -65,14 +65,6 @@ void WebWriter::doSession(
     if (ec)
         return fail(ec, "write");
 
-    // This buffer will hold the incoming message
-    beast::flat_buffer buffer;
-
-    // Read a message into our buffer
-    ws.async_read(buffer, yield[ec]);
-    if (ec)
-        return fail(ec, "read");
-
     // Close the WebSocket connection
     ws.async_close(websocket::close_code::normal, yield[ec]);
     if (ec)
@@ -80,8 +72,6 @@ void WebWriter::doSession(
 
     // If we get here then the connection is closed gracefully
 
-    // The make_printable() function helps print a ConstBufferSequence
-    std::cout << beast::make_printable(buffer.data()) << std::endl;
 }
 
 void WebWriter::write(const std::string &msg) {
